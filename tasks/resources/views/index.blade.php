@@ -1,7 +1,12 @@
+@extends('layouts.app')
+
+@section('title', 'The List of Tasks:')
+
+
 <!-- You can use Blade Templates to render dynamic content -->
-<div>
+{{-- <div>
        <h1>Task List:</h1>
-</div>
+</div> --}}
 
 <!-- Directive -->
 
@@ -9,16 +14,18 @@
 <div>The name is: {{$name}} </div>
 @endisset --}}
 
-<div>
+@section('content')
    {{-- @if(count($tasks)) --}}
     {{-- @foreach($tasks as $task)
     <div>{{$task -> title}}</div>
     @endforeach --}}
     @forelse($tasks as $task)
-    <div>{{$task -> title}}</div>
+    <div>
+        <a href="{{ route('tasks.show', ['id' => $task->id])}}">{{$task -> title}}</a>
+    </div>
     @empty
     <div>There are no tasks!</div>
     @endforelse
 
    {{-- @endif --}}
-</div>
+@endsection
