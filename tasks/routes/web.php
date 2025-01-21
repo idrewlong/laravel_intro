@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Requests\TaskRequest;
+use App\Models\Task;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Http\Request;
 
 
 // class Task
@@ -70,20 +72,54 @@ Route::get('/', function () {
 
 Route::get('/tasks', function ()  {
     return view('index', [
-        'tasks' => \App\Models\Task::latest()->get(),
+        'tasks' => Task::latest()->get(),
     ]);
 })->name('tasks.index');
 
 // Form - needs to be before {id}
-Route::view('/tasks/create', 'create');
+Route::view('/tasks/create', 'create')->name('tasks.create');
 
-Route::get('/tasks/{id}', function($id)   {
-    return view('show', ['task' =>  \App\Models\Task::findOrFail($id)]);
+Route::get('/tasks/{task}/edit', function(Task $task)   {
+    return view('edit', ['task' =>  $task]);
+}) -> name('tasks.edit');
+
+Route::get('/tasks/{task}', function(Task $task)   {
+    return view('show', ['task' =>  $task]);
 }) -> name('tasks.show');
 
-Route::post('/tasks', function() {
-    dd('We Have Reached Store Route');
-})-name('tasks.store')
+
+Route::post('/tasks', function(TaskRequest $request) {
+    $task=Task::create($request->validated());
+//     $data = $request->validated();
+//    $task = new Task;
+//    $task->title = $data['title'];
+//    $task->description = $data['description'];
+//    $task->long_description = $data['long_description'];
+//    $task->save();
+
+
+   return redirect()->route('tasks.show', ['task' => $task->id])
+   ->with('success', 'Task created successfully');
+})->name('tasks.store');
+
+Route::put('/tasks/{task}', function(TaskRequest $request,Task $task) {
+    $task->update($request->validated());
+    // $data = $request->validated();
+    // $task->title = $data['title'];
+    // $task->description = $data['description'];
+    // $task->long_description = $data['long_description'];
+    // $task->save();
+
+    return redirect()->route('tasks.show', ['task' => $task->id])
+    ->with('success', 'Task updated successfully');
+ })->name('tasks.update');
+
+ Route::delete('/tasks/{task}', function(Task $task) {
+    $task->delete();
+
+    return redirect()->route('tasks.index')
+    ->with('success', 'Task deleted successfully');
+ })->name('tasks.destroy');
 
 // Route::get('/hello', function() {
 //     return 'Hello World';
